@@ -34,13 +34,16 @@ public class QueueService {
     private int expoBase;
 
     @Transactional
-    public Job submitJob(String payload, String queueName, int priority, int maxAttempts, int delaySeconds, RetryPolicy retryPolicy ) {
+    public Job submitJob(String payload, String queueName, int priority, int maxAttempts, int delaySeconds, RetryPolicy retryPolicy, int timeoutSeconds, boolean isExtendLease ) {
         Job job = Job.builder()
                 .payload(payload)
                 .idempotencyKey(UUID.randomUUID().toString())
                 .queueName(queueName)
+                .isExtendLease(isExtendLease)
                 .status(JobStatus.PENDING)
                 .priority(priority)
+                .startedAt(null)
+                .timeoutSeconds(timeoutSeconds)
                 .attempts(0)
                 .maxAttempts(maxAttempts)
                 .retryPolicy(retryPolicy)
@@ -66,7 +69,7 @@ public class QueueService {
         job.setStartedAt(LocalDateTime.now());
         job.setStatus(JobStatus.PROCESSING);
         job.setAttempts(job.getAttempts() + 1);
-        job.setLockedUntil(now.plusSeconds(leaseDuration));
+        job.setLockedUntil(LocalDateTime.now().plusSeconds(leaseDuration));
 
         return Optional.of(jobRepository.save(job));
     }
@@ -122,5 +125,17 @@ public class QueueService {
 
         jobRepository.deleteCompletedJobsOlderThan(cutOff);
 
+    }
+
+    public void heartbeat(Long jobId){
+        jobRepository.findById(jobId).ifPresent(job ->{
+            if(job.getStatus() == JobStatus.PROCESSING){
+                job.setLockedUntil(
+                        LocalDateTime.now().plusSeconds(leaseDuration)
+                );
+
+                jobRepository.save(job);
+            }
+        });
     }
 }

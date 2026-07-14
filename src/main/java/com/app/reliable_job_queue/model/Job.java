@@ -32,6 +32,8 @@ public class Job {
     private int priority;
     private int attempts;
 
+    private boolean isExtendLease;
+
     @Enumerated(EnumType.STRING)
     private RetryPolicy retryPolicy;
 
@@ -47,6 +49,8 @@ public class Job {
     @Version
     private Long version;
     private LocalDateTime startedAt;
+
+    private Integer timeoutSeconds;
 
 
     private LocalDateTime completedAt;
