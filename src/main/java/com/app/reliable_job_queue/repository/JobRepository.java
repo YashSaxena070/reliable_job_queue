@@ -1,5 +1,6 @@
 package com.app.reliable_job_queue.repository;
 
+import com.app.reliable_job_queue.enums.JobStatus;
 import com.app.reliable_job_queue.model.Job;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,9 @@ import java.util.List;
 
 @Repository
 public interface JobRepository extends JpaRepository<Job,Long> {
+
+    long countByStatus(JobStatus status);
+
     // Find jobs that are either PENDING or had a worker crash (lockedUntil has expired)
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT j\n" +

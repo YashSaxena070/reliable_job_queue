@@ -1,5 +1,6 @@
 package com.app.reliable_job_queue.Controller;
 
+import com.app.reliable_job_queue.dto.QueueStatsResponse;
 import com.app.reliable_job_queue.enums.RetryPolicy;
 import com.app.reliable_job_queue.model.Job;
 
@@ -32,5 +33,10 @@ public class QueueController {
     @GetMapping("/inspect")
     public List inspectAllJobs() {
         return jobRepository.findAll();
+    }
+
+    @GetMapping("/stats")
+    public QueueStatsResponse getStats(){
+        return queueService.getQueueStats();
     }
 }

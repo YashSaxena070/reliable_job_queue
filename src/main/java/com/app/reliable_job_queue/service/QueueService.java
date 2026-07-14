@@ -1,5 +1,6 @@
 package com.app.reliable_job_queue.service;
 
+import com.app.reliable_job_queue.dto.QueueStatsResponse;
 import com.app.reliable_job_queue.enums.RetryPolicy;
 import com.app.reliable_job_queue.model.Job;
 import com.app.reliable_job_queue.enums.JobStatus;
@@ -137,5 +138,20 @@ public class QueueService {
                 jobRepository.save(job);
             }
         });
+    }
+
+    public QueueStatsResponse getQueueStats() {
+
+        return new QueueStatsResponse(
+
+                jobRepository.countByStatus(JobStatus.PENDING),
+
+                jobRepository.countByStatus(JobStatus.PROCESSING),
+
+                jobRepository.countByStatus(JobStatus.COMPLETED),
+
+                jobRepository.countByStatus(JobStatus.DLQ)
+
+        );
     }
 }
